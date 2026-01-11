@@ -75,22 +75,14 @@ class TrustLedger:
         pdf.add_page()
         
         # --- HEADER ---
-        pdf.set_font("Arial", 'B', 20)
-        pdf.set_text_color(0, 51, 102) 
-        pdf.cell(0, 20, "LMA-Sentinel: Automated Compliance Audit", ln=True, align='C')
-        
-        pdf.set_font("Arial", '', 10)
-        pdf.set_text_color(100)
-        pdf.cell(0, 10, f"Audit Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='C')
-        pdf.ln(10)
-
-        # --- AUDIT TABLE ---
         pdf.set_font("Arial", 'B', 12)
-        pdf.set_text_color(2)
-        pdf.cell(100, 11, "Metric", border=1.5,align='C', fill=False)
-        pdf.cell(100, 10, "Value", border=1.5, ln=True,align='C', fill=False)
+        pdf.set_text_color(0, 51, 102) 
+        # Total width = 190 (80+110). Fits A4 perfectly.
+        pdf.cell(80, 11, "Metric", border=1, align='C')
+        pdf.cell(110, 11, "Value", border=1, ln=True, align='C')
 
-        pdf.set_font("Arial", '', 12)
+        pdf.set_font("Arial", '', 11)
+        pdf.set_text_color(0)
         data = [
             ("Loan Reference", doc_id),
             ("Contractual Target", str(target)),
@@ -102,10 +94,16 @@ class TrustLedger:
             ("New Effective Margin", f"{new_margin} bps")
         ]
 
-        # This loop actually draws the table rows into the PDF buffer
         for label, val in data:
-            pdf.cell(100, 12, label, border=1,align='C')
-            pdf.cell(100, 12, str(val), border=1, ln=True,align='C')
+            # Metric column (80mm)
+            pdf.cell(80, 12, label, border=1, align='L')
+            
+            # Value column (110mm) - uses multi_cell to handle long text/errors
+            x = pdf.get_x()
+            y = pdf.get_y()
+            pdf.multi_cell(110, 12, str(val), border=1, align='C')
+            # Reset position for next row
+            pdf.set_xy(x + 110, y + 12)
 
         # --- DIGITAL SEAL (BOTTOM LEFT) ---
         pdf.ln(20)
