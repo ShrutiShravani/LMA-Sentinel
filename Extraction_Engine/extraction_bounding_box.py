@@ -3,12 +3,14 @@ import json
 import fitz
 from google import genai
 from google.genai import types
+import streamlit as st
 
 MODEL_NAME = "gemini-2.5-flash"
 
 client = genai.Client(
-    api_key="AIzaSyBsNTBPRjjJCocl7FatwWlW6IqY6vjwhQw"
+    api_key=st.secrets["GEMINI_API_KEY"]
 )
+
 response = client.models.list()
 for m in response:
     print(m.name, m.description)
