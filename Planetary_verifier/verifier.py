@@ -1,27 +1,9 @@
 import ee
 import os
-import streamlit as st
-import json
 
 # Initialize Earth Engine
 # Run ee.Authenticate() in your terminal if you haven't yet
-def initialize_ee():
-    if not ee.data._initialized:
-            # 1. Get credentials from Streamlit Secrets
-            # In Streamlit Cloud, you will paste your JSON key into the Secrets setting
-            ge_json = st.secrets["EARTH_ENGINE_JSON"]
-            credentials_dict = json.loads(ge_json)
-            
-            # 2. Authenticate using Service Account
-            credentials = ee.ServiceAccountCredentials(
-                credentials_dict['client_email'], 
-                key_data=ge_json
-            )
-            
-            # 3. Initialize with the Service Account
-            ee.Initialize(credentials, project='semiotic-art-483903-r6')
-
-initialize_ee()
+ee.Initialize(project='semiotic-art-483903-r6')
 
 class PlanetaryVerifier:
     def __init__(self):
@@ -67,7 +49,7 @@ class PlanetaryVerifier:
 
             if image_count == 0:
                 return {"status": "ERROR", "reason": "No imagery found in 90-day window."}
-
+                
             # 4. NDVI CALCULATION & MEDIAN REDUCTION
             def add_ndvi(img):
                 return img.addBands(img.normalizedDifference(['B8', 'B4']).rename('NDVI'))
@@ -109,7 +91,6 @@ class PlanetaryVerifier:
 
             res= {
                 "status": "SUCCESS",
-                "image_count": image_count,
                 "actual_ndvi": round(actual_score, 4),
                 "target_ndvi": float(target_ndvi),
                 "breach_area_percentage": f"{breach_percentage}%",

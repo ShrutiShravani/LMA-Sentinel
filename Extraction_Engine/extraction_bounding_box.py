@@ -10,7 +10,6 @@ MODEL_NAME = "gemini-2.5-flash"
 client = genai.Client(
     api_key=st.secrets["GEMINI_API_KEY"]
 )
-
 response = client.models.list()
 for m in response:
     print(m.name, m.description)
