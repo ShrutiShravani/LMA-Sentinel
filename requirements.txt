@@ -2,12 +2,12 @@
 streamlit
 
 # --- AI & Document Processing ---
-google-generativeai
 fpdf2
 pypdf
 pillow
 faker
 pymupdf
+google-genai
 
 # --- Satellite & Data Science ---
 earthengine-api
