@@ -1,0 +1,7 @@
+.env
+*.json
+static/mask*
+static/evidence*
+reports/
+__pycache__/
+.streamlit/

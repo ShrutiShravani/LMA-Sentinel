@@ -1,9 +1,36 @@
 import ee
 import os
+import json
+import streamlit as st
 
 # Initialize Earth Engine
-# Run ee.Authenticate() in your terminal if you haven't yet
-ee.Initialize(project='semiotic-art-483903-r6')
+# --- NEW SECURE INITIALIZATION ---
+def initialize_ee():
+    if not ee.data._initialized:
+        try:
+            # 1. Pull the string from Streamlit Secrets
+            ge_json = st.secrets["EARTH_ENGINE_JSON"]
+            
+            # 2. Parse the string into a dictionary
+            credentials_dict = json.loads(ge_json)
+            
+            # 3. Create the credentials object
+            credentials = ee.ServiceAccountCredentials(
+                credentials_dict['client_email'], 
+                key_data=ge_json
+            )
+            
+            # 4. Initialize the library
+            ee.Initialize(credentials, project='semiotic-art-483903-r6')
+            print("Earth Engine Initialized successfully via Secrets")
+        except Exception as e:
+            print(f"Earth Engine failed to initialize: {e}")
+            # Fallback for local testing if secrets aren't available
+            ee.Initialize(project='semiotic-art-483903-r6')
+
+# Run the initialization
+initialize_ee()
+
 
 class PlanetaryVerifier:
     def __init__(self):
