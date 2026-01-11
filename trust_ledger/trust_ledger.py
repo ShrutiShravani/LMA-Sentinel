@@ -67,32 +67,32 @@ class TrustLedger:
         }
 
     def generate_pdf_report(self, doc_id, target, actual, status, impact, new_margin, reason, breach_ratio):
-        # 1. Create the Seal Hash
+        # Create Seal
         seal_content = f"{doc_id}|{status}|{new_margin}|{datetime.now().isoformat()}"
         final_digital_seal = hashlib.sha256(seal_content.encode()).hexdigest()
 
-        pdf = FPDF()
+        # Force A4 Portrait with standard margins
+        pdf = FPDF(orientation='P', unit='mm', format='A4')
+        pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
         
-        # --- TITLE & BRANDING ---
-        pdf.set_font("Arial", 'B', 16)
+        # --- TITLE ---
+        pdf.set_font("Helvetica", 'B', 16) # Helvetica is safer on Linux/Streamlit than Arial
         pdf.set_text_color(0, 51, 102) 
-        pdf.cell(0, 15, "LMA-SENTINEL: AUTOMATED COMPLIANCE AUDIT", ln=True, align='C')
-        
-        pdf.set_font("Arial", 'I', 9)
-        pdf.set_text_color(100)
-        pdf.cell(0, 5, f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='C')
-        pdf.ln(10)
+        pdf.cell(0, 15, "LMA-SENTINEL: COMPLIANCE AUDIT", ln=True, align='C')
+        pdf.ln(5)
 
-        # --- TABLE HEADER ---
-        pdf.set_font("Arial", 'B', 12)
-        pdf.set_fill_color(230, 230, 230) # Light grey fill for header
+        # --- THE TABLE (STRICT ALIGNMENT) ---
+        pdf.set_font("Helvetica", 'B', 11)
+        pdf.set_fill_color(240, 240, 240)
         pdf.set_text_color(0)
-        pdf.cell(80, 12, "Compliance Metric", border=1, align='C', fill=True)
-        pdf.cell(110, 12, "Verified Value", border=1, ln=True, align='C', fill=True)
+        
+        # Header
+        pdf.cell(80, 10, "Compliance Metric", border=1, align='C', fill=True)
+        pdf.cell(110, 10, "Verified Value", border=1, ln=True, align='C', fill=True)
 
-        # --- TABLE DATA ---
-        pdf.set_font("Arial", '', 11)
+        # Data Rows
+        pdf.set_font("Helvetica", '', 10)
         data = [
             ("Loan Reference", str(doc_id)),
             ("Contractual Target", f"{target} NDVI"),
@@ -105,51 +105,46 @@ class TrustLedger:
         ]
 
         for label, val in data:
-            # We calculate height based on the right-hand column content
-            # This prevents the "overlap" bug
-            pdf.set_font("Arial", 'B', 11)
-            pdf.cell(80, 12, label, border=1)
+            # We use a fixed height and cell() instead of multi_cell 
+            # for the label to keep the table structure rigid.
+            pdf.set_font("Helvetica", 'B', 10)
+            pdf.cell(80, 10, label, border=1)
             
-            pdf.set_font("Arial", '', 11)
-            # multi_cell moves the cursor to the next line automatically
-            pdf.multi_cell(110, 12, str(val), border=1, align='C')
+            pdf.set_font("Helvetica", '', 10)
+            # We use cell() for value too. If 'reason' is very long, 
+            # we truncate it slightly so it doesn't break the table layout.
+            display_val = str(val)[:55] + "..." if len(str(val)) > 58 else str(val)
+            pdf.cell(110, 10, display_val, border=1, ln=True, align='C')
 
-        # --- DIGITAL SEAL SECTION ---
-        pdf.ln(15)
-        pdf.set_font("Courier", 'B', 11)
-        pdf.cell(0, 10, "VALIDATION DIGITAL SEAL:", ln=True)
-        
-        pdf.set_font("Courier", '', 9)
-        pdf.set_text_color(100)
-        # We use a smaller font for the hash so it doesn't wrap weirdly
-        pdf.multi_cell(0, 5, final_digital_seal)
+        # --- TIGHTENED FOOTER ---
+        pdf.ln(6)
+        pdf.set_font("Courier", 'B', 10)
+        pdf.cell(0, 8, "VALIDATION DIGITAL SEAL:", ln=True)
+        pdf.set_font("Courier", '', 7)
+        pdf.set_text_color(120)
+        pdf.multi_cell(0, 4, final_digital_seal)
 
-        # --- SECURITY FOOTER BOX ---
-        pdf.set_y(-110)  # Position 60mm from bottom
+        # Audit Advisory Box
+        pdf.ln(4)
         curr_y = pdf.get_y()
         pdf.set_draw_color(0, 51, 102)
-        pdf.set_fill_color(245, 247, 249)
-        pdf.rect(10, curr_y, 190, 35, 'DF') 
+        pdf.set_fill_color(248, 249, 251)
+        pdf.rect(10, curr_y, 190, 28, 'DF')
         
-        pdf.set_xy(15, curr_y + 5)
-        pdf.set_font("Arial", 'B', 10)
+        pdf.set_xy(15, curr_y + 3)
+        pdf.set_font("Helvetica", 'B', 9)
         pdf.set_text_color(0, 51, 102)
-        pdf.cell(0, 5,"AUDIT INTEGRITY ADVISORY", ln=True)
+        pdf.cell(0, 5, "AUDIT INTEGRITY ADVISORY", ln=True)
         
-        pdf.set_font("Arial", '', 9)
+        pdf.set_font("Helvetica", '', 8)
         pdf.set_text_color(0)
-        pdf.ln(2)
-        
-        security_text = (
-            "- This document is cryptographically sealed with a SHA-256 hash.\n"
-            "- Any modification to financial margins or NDVI values voids this record.\n"
-            "- This report serves as an immutable record for LMA compliance audits."
-        )
-        pdf.multi_cell(180, 5, security_text)
+        pdf.set_x(15)
+        pdf.multi_cell(180, 4, "- Cryptographically sealed record (SHA-256).\n- Modification to data voids this certificate.\n- Immutable LMA compliance record.")
 
-        # --- SAVE ---
+        # --- SAVE & RETURN ---
         report_name = f"audit_report_{doc_id}.pdf"
-        path = os.path.join(self.reports_dir, report_name)
-        pdf.output(path)
+        # Ensure we use a safe path for Streamlit Cloud
+        save_path = os.path.join(self.reports_dir, report_name)
+        pdf.output(save_path)
 
-        return path, final_digital_seal
+        return save_path, final_digital_seal
