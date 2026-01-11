@@ -21,7 +21,7 @@ To run this locally, you need:
 ## ⚙️ Setup & Installation
 1. **Clone the repo:**
    ```bash
-   git clone [your-link]
+   git clone (https://github.com/ShrutiShravani/LMA-Sentinel.git)
    cd lma-sentinel
 
 2. Install Dependencies:
