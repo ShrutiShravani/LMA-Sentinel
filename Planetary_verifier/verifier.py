@@ -139,11 +139,3 @@ class PlanetaryVerifier:
         except Exception as e:
             return {"status": "ERROR", "message": f"Verification Failure: {e}"}
 
-# --- TEST BLOCK ---
-if __name__ == "__main__":
-    verifier = PlanetaryVerifier()
-    # Test with your Success Coordinates
-   
-    result = verifier.verify_zonal_truth(61.62501, 24.32816, 0.75)
-    print("\n--- FINAL AUDIT REPORT ---")
-    print(result)

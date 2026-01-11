@@ -153,19 +153,3 @@ class TrustLedger:
         pdf.output(path)
 
         return path, final_digital_seal
-
-if __name__ == "__main__":
-    # Initialize the ledger with a standard 150 bps base margin
-    ledger = TrustLedger(base_margin_bps=150)
-    
-    # This value comes from your Gemini extraction ("5.0 bps")
-    contract_penalty = 5.0 
-
-    print("🚀 STARTING FINAL COMPLIANCE TEST...")
-    print("-" * 50)
-
-    # SCENARIO 1: The "Success" Case (Green)
-    # Goal: Target 0.75, Actual 0.82, Breach 0% -> Result: 145 bps
-    print("Testing Scenario 1: COMPLIANT (Reward Applied)")
-    res1 = ledger.calculate_final_verdict("LMA-2024-001", 61.62501, 24.32816, 0.28, contract_penalty)
-    print(f"Result: {res1['status']} | New Margin: {res1['final_margin']}")

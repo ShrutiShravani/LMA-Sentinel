@@ -72,9 +72,3 @@ class LegalBrain:
         blocks = self.extract_text_blocks(pdf_path)
         return self.extract_fields_with_gemini(blocks)
 
-if __name__ == "__main__":
-    brain = LegalBrain()
-    # Ensure this file exists and was created by your generator
-    PDF_FILE = "data/lma_150_dataset/LMA_Success_1.pdf" 
-    result = brain.run(PDF_FILE)
-    print(json.dumps(result, indent=2))
