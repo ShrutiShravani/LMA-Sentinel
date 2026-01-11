@@ -1,0 +1,19 @@
+# --- Core Web & API ---
+fastapi==0.104.1
+uvicorn==0.24.0
+streamlit==1.28.2
+requests==2.31.0
+python-multipart==0.0.6
+
+# --- AI & Document Processing ---
+google-generativeai==0.3.1
+fpdf==1.7.2
+pypdf==3.17.0
+pillow==10.1.0
+faker==19.13.0
+
+# --- Satellite & Data Science (Versions for Python 3.10) ---
+earthengine-api==0.1.381
+numpy==1.26.2
+pandas==2.0.3
+pymupdf
