@@ -6,29 +6,32 @@ import streamlit as st
 # Initialize Earth Engine
 # --- NEW SECURE INITIALIZATION ---
 def initialize_ee():
-    if not ee.data._initialized:
+  
+    # Standard way to check if an active connection exists
+    if not ee.data.getMapId: 
         try:
-            # 1. Pull the string from Streamlit Secrets
+            # 1. Access the secret
             ge_json = st.secrets["EARTH_ENGINE_JSON"]
-            
-            # 2. Parse the string into a dictionary
             credentials_dict = json.loads(ge_json)
             
-            # 3. Create the credentials object
+            # 2. Setup Credentials
             credentials = ee.ServiceAccountCredentials(
                 credentials_dict['client_email'], 
                 key_data=ge_json
             )
             
-            # 4. Initialize the library
+            # 3. Initialize with the project ID
             ee.Initialize(credentials, project='semiotic-art-483903-r6')
-            print("Earth Engine Initialized successfully via Secrets")
+            print("🚀 GEE Initialized via Service Account")
+            
         except Exception as e:
-            print(f"Earth Engine failed to initialize: {e}")
-            # Fallback for local testing if secrets aren't available
-            ee.Initialize(project='semiotic-art-483903-r6')
+            # Fallback for local dev
+            try:
+                ee.Initialize(project='semiotic-art-483903-r6')
+                print("💻 GEE Initialized via Local Auth")
+            except:
+                st.error(f"Satellite Engine failed to start: {e}")
 
-# Run the initialization
 initialize_ee()
 
 
