@@ -117,31 +117,34 @@ class TrustLedger:
         pdf.multi_cell(0, 5, f"{final_digital_seal}", align='L')
 
      
-        pdf.set_y(-88)  
+        # --- AUDIT INTEGRITY BOX ---
+        pdf.set_y(-85)  # Position from bottom
         current_y = pdf.get_y()
-        pdf.set_draw_color(0, 51, 102) # Dark Bank Blue
-        pdf.set_fill_color(240, 242, 246) # Light Grey Background
-        pdf.rect(10, current_y, 190, 32, 'DF') # 'DF' means Draw and Fill
+        
+        # Draw the background box
+        pdf.set_draw_color(0, 51, 102) 
+        pdf.set_fill_color(240, 242, 246) 
+        pdf.rect(10, current_y, 190, 35, 'DF') 
 
-# 3. Add Header inside the box
-        pdf.set_y(current_y + 5)
-        pdf.set_font("Courier", 'B', 12)
+        # Add Title inside box
+        pdf.set_y(current_y + 2)
+        pdf.set_x(15) # MOVE CURSOR TO THE LEFT
+        pdf.set_font("Courier", 'B', 11)
         pdf.set_text_color(0)
-        pdf.cell(0, 10," AUDIT INTEGRITY ADVISORY:", ln=True)
+        pdf.cell(0, 8, "AUDIT INTEGRITY ADVISORY:", ln=True)
 
-        pdf.set_font("Arial", '', 10)
-        pdf.set_text_color(0)
-        # Use a standard '-' instead of '•' to avoid encoding errors
+        # Add Security Points
+        pdf.set_font("Arial", '', 9)
         security_points = [
-            "- This document is cryptographically sealed with a SHA-256 hash.",
-            "- Any modification to the financial margins or NDVI values voids the Digital Seal.",
-            "- This report serves as an immutable record for LMA compliance audits."
+            "- Document is cryptographically sealed with a SHA-256 hash.",
+            "- Modifications to NDVI values voids the Digital Seal.",
+            "- Report serves as an immutable record for LMA compliance."
         ]
 
         for point in security_points:
-            # Use .encode('latin-1', 'replace').decode('latin-1') as a safety net
-            safe_text = point.encode('latin-1', 'ignore').decode('latin-1')
-            pdf.multi_cell(0, 5, safe_text)
+            pdf.set_x(15) # FORCE CURSOR TO LEFT FOR EVERY LINE
+            pdf.multi_cell(180, 5, point) # Use 180 instead of 0 for safety
+
         
         # --- FINAL STEP: SAVE ---
         # We output the file ONLY after all text and seals are added
