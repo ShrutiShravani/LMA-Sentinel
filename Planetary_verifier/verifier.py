@@ -6,35 +6,52 @@ import streamlit as st
 # Initialize Earth Engine
 # --- NEW SECURE INITIALIZATION ---
 def initialize_ee():
-  
-    # Standard way to check if an active connection exists
-    if not ee.data.getMapId: 
-        try:
-            # 1. Access the secret
-            ge_json = st.secrets["EARTH_ENGINE_JSON"]
-            credentials_dict = json.loads(ge_json)
-            
-            # 2. Setup Credentials
+    try:
+        ee.data.getProject()
+        return 
+    except Exception:
+        pass
+
+    try:
+        # 1. TRY LOCAL FILE FIRST (For your Windows testing)
+        # Using a raw string (r"") to handle Windows backslashes correctly
+        local_key_path = r"Planetary_verifier\semiotic-art-483903-r6-9e39071f64f3.json"
+        
+        if os.path.exists(local_key_path):
+            with open(local_key_path) as f:
+                creds = json.load(f)
+            ee.Initialize(
+                ee.ServiceAccountCredentials(creds['client_email'], local_key_path),
+                project='semiotic-art-483903-r6'
+            )
+            print("💻 GEE Initialized via Local JSON file")
+            return # Exit successfully
+
+        # 2. TRY STREAMLIT SECRETS (For when you push to Cloud)
+        # We use .get() to avoid the "No secrets files found" crash
+        ge_json = st.secrets.get("EARTH_ENGINE_JSON")
+        if ge_json:
             credentials = ee.ServiceAccountCredentials(
-                credentials_dict['client_email'], 
+                json.loads(ge_json)['client_email'], 
                 key_data=ge_json
             )
-            
-            # 3. Initialize with the project ID
             ee.Initialize(credentials, project='semiotic-art-483903-r6')
-            print("🚀 GEE Initialized via Service Account")
-            
-        except Exception as e:
-            # Fallback for local dev
-            try:
-                ee.Initialize(project='semiotic-art-483903-r6')
-                print("💻 GEE Initialized via Local Auth")
-            except:
-                st.error(f"Satellite Engine failed to start: {e}")
+            print("🚀 GEE Initialized via Streamlit Secrets")
+            return
 
+        # 3. FALLBACK
+        ee.Initialize(project='semiotic-art-483903-r6')
+        print("⚙️ GEE Initialized via Default Auth")
+
+    except Exception as e:
+        print(f"❌ GEE Init Error: {e}")
+
+# CALL THE FUNCTION ONCE
 initialize_ee()
 
 
+
+#ee.Initialize(project='semiotic-art-483903-r6')
 class PlanetaryVerifier:
     def __init__(self):
         self.collection_id = "COPERNICUS/S2_SR_HARMONIZED"
@@ -139,3 +156,11 @@ class PlanetaryVerifier:
         except Exception as e:
             return {"status": "ERROR", "message": f"Verification Failure: {e}"}
 
+# --- TEST BLOCK ---
+if __name__ == "__main__":
+    verifier = PlanetaryVerifier()
+    # Test with your Success Coordinates
+   
+    result = verifier.verify_zonal_truth(61.62501, 24.32816, 0.75)
+    print("\n--- FINAL AUDIT REPORT ---")
+    print(result)
