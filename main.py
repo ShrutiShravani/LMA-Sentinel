@@ -15,7 +15,7 @@ with col_left:
     # --- ADD THIS: JUDGE'S QUICK-START & SAMPLE DOWNLOAD ---
     st.info("⚖️ **Judge's Guide:** To test the engine, download the sample contract below and upload it to start Phase 1.")
     
-    sample_pdf_path = "data\lma_150_dataset\LMA_Success_1.pdf" 
+    sample_pdf_path = "data/lma_150_dataset/LMA_Success_1.pdf" 
     if os.path.exists(sample_pdf_path):
         with open(sample_pdf_path, "rb") as f:
             st.download_button(
