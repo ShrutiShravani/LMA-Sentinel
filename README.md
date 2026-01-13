@@ -34,9 +34,7 @@ GEE_SERVICE_ACCOUNT=your_account_here
 
 4. Run the Application:
 
-Start the Backend: uvicorn main:app --reload
-
-Start the Frontend: streamlit run app.py
+streamlit run main.py
 
 🏦 Business Impact
 Efficiency: 90% reduction in manual audit time.
@@ -52,3 +50,5 @@ Audit Time          4-6 Hours per Loan                  < 30 Seconds
 Data Accuracy      Self-Reported (Biased)              Satellite-Verified (Objective)
 Risk Detection      Annual / Delayed                   Real-Time / Monthly
 Scalability        Linear (More staff needed)       Exponential (Cloud-Scale)
+
+https://lma-sentinel-k6fncny7eyxyljpfsgtvfa.streamlit.app/

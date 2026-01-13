@@ -138,6 +138,7 @@ class PlanetaryVerifier:
 
             res= {
                 "status": "SUCCESS",
+                "image_count":image_count,
                 "actual_ndvi": round(actual_score, 4),
                 "target_ndvi": float(target_ndvi),
                 "breach_area_percentage": f"{breach_percentage}%",
