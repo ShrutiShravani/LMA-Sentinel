@@ -12,6 +12,23 @@ if 'step' not in st.session_state: st.session_state['step'] = 0
 if 'doc_id' not in st.session_state: st.session_state['doc_id'] = None
 
 with col_left:
+    # --- ADD THIS: JUDGE'S QUICK-START & SAMPLE DOWNLOAD ---
+    st.info("⚖️ **Judge's Guide:** To test the engine, download the sample contract below and upload it to start Phase 1.")
+    
+    sample_pdf_path = "data\lma_150_dataset\LMA_Success_1.pdf" 
+    if os.path.exists(sample_pdf_path):
+        with open(sample_pdf_path, "rb") as f:
+            st.download_button(
+                label="📥 Step 1: Download Sample LMA PDF",
+                data=f.read(),
+                file_name="sample_lma_contract_XYZ.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+    else:
+        st.error("Missing 'assets/sample_lma_contract_XYZ.pdf' - Please check your repo!")
+
+    st.divider() # Adds a clean line to separate instructions from the app
     st.title("ESG Audit Engine")
     uploaded_file = st.file_uploader("Upload LMA Contract", type="pdf")
     
